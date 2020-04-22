@@ -5,10 +5,8 @@ authors = ["tony84727 <tony84727@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[target.'cfg(target_os = "macos")'.dependencies]
+amethyst = { version = "0.15.0", features = ["metal"] }
 
-[dependencies]
-amethyst = "0.15.0"
-
-[features]
-vulkan = ["amethyst/vulkan"]
-metal = ["amethyst/metal"]
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+amethyst = { version = "0.15.0", features = ["vulkan"] }
