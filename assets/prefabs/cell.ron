@@ -1,0 +1,15 @@
+#![enable(implicit_some)]
+(
+    entities: [
+        (
+            data: (
+                mesh: Shape((
+                    shape: Cube,
+                )),
+                material: (
+                    albedo: Generate(Srgba(0.0,0.0,0.0,1.0)),
+                ),
+            )
+        )
+    ]
+)
