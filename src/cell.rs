@@ -1,9 +1,16 @@
 use amethyst::{
-    assets::{Handle, Prefab, PrefabLoader, RonFormat},
-    ecs::{Component, DenseVecStorage, Entities, Join, Read, System, World, Write, WriteStorage},
+    assets::{Handle, Prefab, PrefabData, PrefabLoader, ProgressCounter, RonFormat},
+    core::Transform,
+    derive::PrefabData,
+    ecs::{
+        Component, DenseVecStorage, Entities, Entity, Join, Read, System, World, Write,
+        WriteStorage,
+    },
+    error::Error,
     prelude::*,
-    renderer::{formats::GraphicsPrefab, rendy::util::types::vertex::PosColor},
+    renderer::{formats::GraphicsPrefab, rendy::util::types::vertex::PosTex},
 };
+use serde::{Deserialize, Serialize};
 
 struct CellState {}
 
@@ -222,7 +229,12 @@ impl<'a> SystemDesc<'a, 'a, CellDisplaySystem> for CellDisplaySystemDesc {
     }
 }
 
-type CellPrefabData = GraphicsPrefab<Vec<PosColor>>;
+// type CellPrefabData = GraphicsPrefab<Vec<PosColor>>;
+#[derive(PrefabData, Serialize, Deserialize)]
+pub struct CellPrefabData {
+    transform: Transform,
+    graphics: GraphicsPrefab<Vec<PosTex>>,
+}
 
 struct GridMap<V> {
     width: usize,

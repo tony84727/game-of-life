@@ -1,5 +1,6 @@
 use amethyst::{
     assets::PrefabLoaderSystemDesc,
+    controls::{FlyControlBundle, FlyControlTag},
     core::{Transform, TransformBundle},
     input::{InputBundle, StringBindings},
     LoggerConfig,
@@ -34,7 +35,12 @@ impl GameState {
 
         let mut camera = Camera::standard_3d(500 as f32, 500 as f32);
 
-        let _camera = world.create_entity().with(transform).with(camera).build();
+        let _camera = world
+            .create_entity()
+            .with(transform)
+            .with(camera)
+            .with(FlyControlTag)
+            .build();
     }
 }
 
@@ -50,7 +56,7 @@ fn main() -> Result<()> {
         RenderingBundle::<Backend>::new()
     };
     #[cfg(not(target_os = "macos"))]
-    let rendering_bundle = {
+        let rendering_bundle = {
         use amethyst::renderer::rendy::vulkan::Backend;
         RenderingBundle::<Backend>::new()
     };
@@ -73,7 +79,12 @@ fn main() -> Result<()> {
         )?
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
         .with_system_desc(cell::CellSystemDesc, "cell", &[])
-        .with_system_desc(cell::CellDisplaySystemDesc, "cell_display", &[]);
+        .with_system_desc(cell::CellDisplaySystemDesc, "cell_display", &[])
+        .with_bundle(FlyControlBundle::<StringBindings>::new(
+            Some(String::from("horizontal")),
+            Some(String::from("vertical")),
+            Some(String::from("forward")),
+        ))?;
     let mut game = Application::new(asset_dir, GameState, game_data)?;
     game.run();
     Ok(())

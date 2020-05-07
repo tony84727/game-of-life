@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["tony84727 <tony84727@gmail.com>"]
 edition = "2018"
 
+[dependencies]
+serde = {version = "1.0.106", features = ["derive"]}
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [target.'cfg(target_os = "macos")'.dependencies]
 amethyst = { version = "0.15.0", features = ["metal"] }
