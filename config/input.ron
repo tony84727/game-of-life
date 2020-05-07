@@ -10,8 +10,8 @@
             neg: Key(A),
         ),
         "forward": Emulated(
-            pos: Key(W),
-            neg: Key(S),
+            pos: Key(S),
+            neg: Key(W),
         ),
     },
     actions: {}

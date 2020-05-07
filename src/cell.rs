@@ -8,7 +8,10 @@ use amethyst::{
     },
     error::Error,
     prelude::*,
-    renderer::{formats::GraphicsPrefab, rendy::util::types::vertex::PosTex},
+    renderer::{
+        formats::GraphicsPrefab,
+        rendy::util::types::vertex::{Normal, Position, TexCoord},
+    },
 };
 use serde::{Deserialize, Serialize};
 
@@ -149,6 +152,8 @@ struct Size(usize, usize);
 /// CellDisplaySystem in charge of spawning entities to represent the cells in the the grid
 pub struct CellDisplaySystem {
     previous_grid_size: Size,
+    // distance of cells
+    distance: f32,
     prefab: Handle<Prefab<CellPrefabData>>,
 }
 
@@ -157,21 +162,21 @@ impl<'a> System<'a> for CellDisplaySystem {
         Entities<'a>,
         WriteStorage<'a, CellTag>,
         WriteStorage<'a, Handle<Prefab<CellPrefabData>>>,
+        WriteStorage<'a, Transform>,
         Read<'a, AutomataControl>,
     );
 
-    fn run(&mut self, (entities, mut tags, mut prefabs, control): Self::SystemData) {
-        self.maintain_cell_entities(&entities, &mut tags, &mut prefabs, &control)
+    fn run(&mut self, (entities, mut tags, mut prefabs, mut transform, control): Self::SystemData) {
+        self.maintain_cell_entities(&entities, &mut tags, &mut prefabs, &control);
+        for (c, mut transform) in (&tags, &mut transform).join() {
+            transform.set_translation_x(c.id.row() as f32 * self.distance);
+            transform.set_translation_y(c.id.column() as f32 * self.distance);
+            transform.set_translation_z(-50.);
+        }
     }
 }
 
 impl CellDisplaySystem {
-    fn new(prefab: Handle<Prefab<CellPrefabData>>) -> Self {
-        CellDisplaySystem {
-            previous_grid_size: Size(0, 0),
-            prefab,
-        }
-    }
     fn maintain_cell_entities(
         &mut self,
         entities: &Entities<'_>,
@@ -224,16 +229,16 @@ impl<'a> SystemDesc<'a, 'a, CellDisplaySystem> for CellDisplaySystemDesc {
         });
         CellDisplaySystem {
             previous_grid_size: Size(0, 0),
+            distance: 3.,
             prefab,
         }
     }
 }
 
-// type CellPrefabData = GraphicsPrefab<Vec<PosColor>>;
 #[derive(PrefabData, Serialize, Deserialize)]
 pub struct CellPrefabData {
     transform: Transform,
-    graphics: GraphicsPrefab<Vec<PosTex>>,
+    graphics: GraphicsPrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>,
 }
 
 struct GridMap<V> {
