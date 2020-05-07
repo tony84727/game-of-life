@@ -1,0 +1,18 @@
+#![enable(implicit_some)]
+(
+    axes: {
+        "vertical": Emulated(
+            pos: Key(Q),
+            neg: Key(E),
+        ),
+        "horizontal": Emulated(
+            pos: Key(D),
+            neg: Key(A),
+        ),
+        "forward": Emulated(
+            pos: Key(W),
+            neg: Key(S),
+        ),
+    },
+    actions: {}
+)

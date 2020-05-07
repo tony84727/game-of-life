@@ -2,14 +2,14 @@ use amethyst::{
     assets::PrefabLoaderSystemDesc,
     core::{Transform, TransformBundle},
     input::{InputBundle, StringBindings},
+    LoggerConfig,
     prelude::*,
-    renderer::{rendy::mesh::PosTex, Camera, RenderToWindow, RenderingBundle},
-    utils::application_root_dir,
-    window::ScreenDimensions,
-    LoggerConfig, Result,
+    renderer::{Camera, RenderingBundle, RenderToWindow, rendy::mesh::PosTex},
+    Result,
+    utils::application_root_dir, window::ScreenDimensions,
 };
-use amethyst_rendy::formats::GraphicsPrefab;
 use amethyst_rendy::{RenderDebugLines, RenderFlat3D, RenderSkybox};
+use amethyst_rendy::formats::GraphicsPrefab;
 
 mod cell;
 mod debug;
@@ -43,8 +43,9 @@ fn main() -> Result<()> {
     let app_dir = application_root_dir()?;
     let asset_dir = app_dir.join("assets");
     let config_dir = app_dir.join("config");
+    let input_binding = config_dir.join("input.ron");
     #[cfg(target_os = "macos")]
-    let rendering_bundle = {
+        let rendering_bundle = {
         use amethyst::renderer::rendy::metal::Backend;
         RenderingBundle::<Backend>::new()
     };
@@ -70,7 +71,7 @@ fn main() -> Result<()> {
                 .with_plugin(RenderFlat3D::default())
                 .with_plugin(RenderDebugLines::default()),
         )?
-        .with_bundle(InputBundle::<StringBindings>::new())?
+        .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
         .with_system_desc(cell::CellSystemDesc, "cell", &[])
         .with_system_desc(cell::CellDisplaySystemDesc, "cell_display", &[]);
     let mut game = Application::new(asset_dir, GameState, game_data)?;

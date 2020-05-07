@@ -166,7 +166,7 @@ impl CellDisplaySystem {
         }
     }
     fn maintain_cell_entities(
-        &self,
+        &mut self,
         entities: &Entities<'_>,
         cells: &mut WriteStorage<'_, CellTag>,
         prefab: &mut WriteStorage<'_, Handle<Prefab<CellPrefabData>>>,
@@ -175,16 +175,17 @@ impl CellDisplaySystem {
         if self.is_grid_size_changed(control) {
             self.remove_all_cells(entities, &cells);
             self.add_cells(entities, cells, prefab, control.size);
+            self.previous_grid_size = control.size;
         }
     }
 
     fn is_grid_size_changed(&self, control: &AutomataControl) -> bool {
-        control.size == self.previous_grid_size
+        control.size != self.previous_grid_size
     }
 
     fn remove_all_cells(&self, entities: &Entities<'_>, cells: &WriteStorage<'_, CellTag>) {
         for (e, _) in (entities, cells).join() {
-            entities.delete(e);
+            entities.delete(e).unwrap();
         }
     }
 
