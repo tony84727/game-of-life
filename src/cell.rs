@@ -151,10 +151,19 @@ struct Size(usize, usize);
 
 /// CellDisplaySystem in charge of spawning entities to represent the cells in the the grid
 pub struct CellDisplaySystem {
+    setting: CellDisplaySystemDesc,
     previous_grid_size: Size,
-    // distance of cells
-    distance: f32,
     prefab: Handle<Prefab<CellPrefabData>>,
+}
+
+impl CellDisplaySystem {
+    fn new(setting: CellDisplaySystemDesc, prefab: Handle<Prefab<CellPrefabData>>) -> Self {
+        CellDisplaySystem {
+            setting,
+            previous_grid_size: Size(0, 0),
+            prefab,
+        }
+    }
 }
 
 impl<'a> System<'a> for CellDisplaySystem {
@@ -169,9 +178,9 @@ impl<'a> System<'a> for CellDisplaySystem {
     fn run(&mut self, (entities, mut tags, mut prefabs, mut transform, control): Self::SystemData) {
         self.maintain_cell_entities(&entities, &mut tags, &mut prefabs, &control);
         for (c, mut transform) in (&tags, &mut transform).join() {
-            transform.set_translation_x(c.id.row() as f32 * self.distance);
-            transform.set_translation_y(c.id.column() as f32 * self.distance);
-            transform.set_translation_z(-50.);
+            transform.set_translation_x(c.id.row() as f32 * self.setting.distance);
+            transform.set_translation_y(c.id.column() as f32 * self.setting.distance);
+            transform.set_translation_z(self.setting.cell_translation_z);
         }
     }
 }
@@ -220,18 +229,27 @@ impl CellDisplaySystem {
     }
 }
 
-pub struct CellDisplaySystemDesc;
+pub struct CellDisplaySystemDesc {
+    // distance of cells
+    distance: f32,
+    cell_translation_z: f32,
+}
+
+impl CellDisplaySystemDesc {
+    pub fn new(distance: f32, cell_translation_z: f32) -> Self {
+        CellDisplaySystemDesc {
+            distance,
+            cell_translation_z,
+        }
+    }
+}
 
 impl<'a> SystemDesc<'a, 'a, CellDisplaySystem> for CellDisplaySystemDesc {
     fn build(self, world: &mut World) -> CellDisplaySystem {
         let prefab = world.exec(|loader: PrefabLoader<CellPrefabData>| {
             loader.load("prefabs/cell.ron", RonFormat, ())
         });
-        CellDisplaySystem {
-            previous_grid_size: Size(0, 0),
-            distance: 3.,
-            prefab,
-        }
+        CellDisplaySystem::new(self, prefab)
     }
 }
 

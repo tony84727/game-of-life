@@ -1,17 +1,18 @@
-use crate::cell::CellPrefabData;
 use amethyst::{
     assets::PrefabLoaderSystemDesc,
     controls::{FlyControlBundle, FlyControlTag},
     core::{Transform, TransformBundle},
     input::{InputBundle, StringBindings},
+    LoggerConfig,
     prelude::*,
-    renderer::{rendy::mesh::PosTex, Camera, RenderToWindow, RenderingBundle},
-    utils::application_root_dir,
-    window::ScreenDimensions,
-    LoggerConfig, Result,
+    renderer::{Camera, RenderingBundle, RenderToWindow, rendy::mesh::PosTex},
+    Result,
+    utils::application_root_dir, window::ScreenDimensions,
 };
-use amethyst_rendy::formats::GraphicsPrefab;
 use amethyst_rendy::{RenderDebugLines, RenderFlat3D, RenderShaded3D, RenderSkybox};
+use amethyst_rendy::formats::GraphicsPrefab;
+
+use crate::cell::CellPrefabData;
 
 mod cell;
 mod debug;
@@ -78,7 +79,11 @@ fn main() -> Result<()> {
         )?
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
         .with_system_desc(cell::CellSystemDesc, "cell", &[])
-        .with_system_desc(cell::CellDisplaySystemDesc, "cell_display", &[])
+        .with_system_desc(
+            cell::CellDisplaySystemDesc::new(3., -50.),
+            "cell_display",
+            &[],
+        )
         .with_bundle(
             FlyControlBundle::<StringBindings>::new(
                 Some(String::from("horizontal")),
