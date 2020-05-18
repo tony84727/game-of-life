@@ -180,7 +180,7 @@ impl<'a> System<'a> for CellDisplaySystem {
         for (c, mut transform) in (&tags, &mut transform).join() {
             transform.set_translation_x(c.id.row() as f32 * self.setting.distance);
             transform.set_translation_y(c.id.column() as f32 * self.setting.distance);
-            transform.set_translation_z(self.setting.cell_translation_z);
+            transform.set_translation_z(self.setting.z);
         }
     }
 }
@@ -229,17 +229,18 @@ impl CellDisplaySystem {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct CellDisplaySystemDesc {
     // distance of cells
     distance: f32,
-    cell_translation_z: f32,
+    z: f32,
 }
 
 impl CellDisplaySystemDesc {
     pub fn new(distance: f32, cell_translation_z: f32) -> Self {
         CellDisplaySystemDesc {
             distance,
-            cell_translation_z,
+            z: cell_translation_z,
         }
     }
 }

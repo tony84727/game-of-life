@@ -5,12 +5,10 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     LoggerConfig,
     prelude::*,
-    renderer::{Camera, RenderingBundle, RenderToWindow, rendy::mesh::PosTex},
+    renderer::{Camera, RenderFlat3D, RenderingBundle, RenderToWindow, rendy::mesh::PosTex},
     Result,
     utils::application_root_dir, window::ScreenDimensions,
 };
-use amethyst_rendy::{RenderDebugLines, RenderFlat3D, RenderShaded3D, RenderSkybox};
-use amethyst_rendy::formats::GraphicsPrefab;
 
 use crate::cell::CellPrefabData;
 
@@ -80,7 +78,7 @@ fn main() -> Result<()> {
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
         .with_system_desc(cell::CellSystemDesc, "cell", &[])
         .with_system_desc(
-            cell::CellDisplaySystemDesc::new(3., -50.),
+            cell::CellDisplaySystemDesc::load(config_dir.join("cell_display.ron"))?,
             "cell_display",
             &[],
         )
