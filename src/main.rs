@@ -10,8 +10,10 @@ use amethyst::{
     utils::application_root_dir, window::ScreenDimensions,
 };
 
+use crate::camera::ZoomCamera;
 use crate::cell::CellPrefabData;
 
+mod camera;
 mod cell;
 mod debug;
 
@@ -33,13 +35,15 @@ impl GameState {
         // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
         let mut transform = Transform::default();
 
-        let mut camera = Camera::standard_3d(width, height);
+        let mut camera = Camera::standard_2d(width, height);
 
         let _camera = world
             .create_entity()
             .with(transform)
             .with(camera)
-            .with(FlyControlTag)
+            .with(ZoomCamera {
+                dimension: (width, height),
+            })
             .build();
     }
 }
@@ -82,14 +86,15 @@ fn main() -> Result<()> {
             "cell_display",
             &[],
         )
-        .with_bundle(
-            FlyControlBundle::<StringBindings>::new(
-                Some(String::from("horizontal")),
-                Some(String::from("vertical")),
-                Some(String::from("forward")),
-            )
-            .with_speed(20.0),
-        )?;
+        .with(camera::CameraZoomSystem::new(), "camera_zoom", &[]);
+    // .with_bundle(
+    //     FlyControlBundle::<StringBindings>::new(
+    //         Some(String::from("horizontal")),
+    //         Some(String::from("vertical")),
+    //         Some(String::from("forward")),
+    //     )
+    //     .with_speed(20.0),
+    // )?;
     let mut game = Application::new(asset_dir, GameState, game_data)?;
     game.run();
     Ok(())

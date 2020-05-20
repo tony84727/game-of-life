@@ -178,8 +178,12 @@ impl<'a> System<'a> for CellDisplaySystem {
     fn run(&mut self, (entities, mut tags, mut prefabs, mut transform, control): Self::SystemData) {
         self.maintain_cell_entities(&entities, &mut tags, &mut prefabs, &control);
         for (c, mut transform) in (&tags, &mut transform).join() {
-            transform.set_translation_x(c.id.row() as f32 * self.setting.distance);
-            transform.set_translation_y(c.id.column() as f32 * self.setting.distance);
+            transform.set_translation_x(
+                (c.id.row() as f32 - control.size.0 as f32 / 2.) * self.setting.distance,
+            );
+            transform.set_translation_y(
+                (c.id.column() as f32 - control.size.1 as f32 / 2.) * self.setting.distance,
+            );
             transform.set_translation_z(self.setting.z);
         }
     }
