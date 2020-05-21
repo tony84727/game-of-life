@@ -3,11 +3,12 @@ use amethyst::{
     controls::{FlyControlBundle, FlyControlTag},
     core::{Transform, TransformBundle},
     input::{InputBundle, StringBindings},
-    LoggerConfig,
     prelude::*,
-    renderer::{Camera, RenderFlat3D, RenderingBundle, RenderToWindow, rendy::mesh::PosTex},
-    Result,
-    utils::application_root_dir, window::ScreenDimensions,
+    renderer::{rendy::mesh::PosTex, Camera, RenderFlat3D, RenderToWindow, RenderingBundle},
+    ui::UiBundle,
+    utils::application_root_dir,
+    window::ScreenDimensions,
+    LoggerConfig, Result,
 };
 
 use crate::camera::ZoomCamera;
@@ -16,17 +17,23 @@ use crate::cell::CellPrefabData;
 mod camera;
 mod cell;
 mod debug;
+mod ui;
 
 struct GameState;
 
 impl SimpleState for GameState {
     fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
         GameState::initialize_camera(&mut data.world);
+        Self::construct_ui(&mut data.world);
         data.world.insert(cell::AutomataControl::default());
     }
 }
 
 impl GameState {
+    fn construct_ui(world: &mut World) {
+        use amethyst::ui::UiCreator;
+        let _ = world.exec(|mut creator: UiCreator| creator.create("ui.ron", ()));
+    }
     fn initialize_camera(world: &mut World) {
         let (width, height) = {
             let dim = world.read_resource::<ScreenDimensions>();
@@ -80,6 +87,7 @@ fn main() -> Result<()> {
                 .with_plugin(RenderFlat3D::default()),
         )?
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with_system_desc(cell::CellSystemDesc, "cell", &[])
         .with_system_desc(
             cell::CellDisplaySystemDesc::load(config_dir.join("cell_display.ron"))?,
@@ -87,14 +95,6 @@ fn main() -> Result<()> {
             &[],
         )
         .with(camera::CameraZoomSystem::new(), "camera_zoom", &[]);
-    // .with_bundle(
-    //     FlyControlBundle::<StringBindings>::new(
-    //         Some(String::from("horizontal")),
-    //         Some(String::from("vertical")),
-    //         Some(String::from("forward")),
-    //     )
-    //     .with_speed(20.0),
-    // )?;
     let mut game = Application::new(asset_dir, GameState, game_data)?;
     game.run();
     Ok(())
