@@ -5,7 +5,7 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{rendy::mesh::PosTex, Camera, RenderFlat3D, RenderToWindow, RenderingBundle},
-    ui::UiBundle,
+    ui::{RenderUi, UiBundle},
     utils::application_root_dir,
     window::ScreenDimensions,
     LoggerConfig, Result,
@@ -84,7 +84,8 @@ fn main() -> Result<()> {
                     RenderToWindow::from_config_path(config_dir.join("display.ron"))?
                         .with_clear([0.0, 0.0, 0.0, 1.0]),
                 )
-                .with_plugin(RenderFlat3D::default()),
+                .with_plugin(RenderFlat3D::default())
+                .with_plugin(RenderUi::default()),
         )?
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(input_binding)?)?
         .with_bundle(UiBundle::<StringBindings>::new())?
